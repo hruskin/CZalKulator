@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="cs">
+<meta charset="utf-8">
+<title>Picture Calculator – nastavení</title>
+<style>
+  body { font: 14px/1.5 system-ui, sans-serif; margin: 16px; min-width: 360px; color: #1f1f1f; }
+  label { display: flex; gap: 8px; align-items: flex-start; font-weight: 600; }
+  p { margin: 4px 0 0 26px; color: #555; }
+  #status { margin-left: 26px; color: #b3261e; }
+  @media (prefers-color-scheme: dark) { body { background: #202124; color: #e8eaed; } p { color: #aaa; } #status { color: #f2b8b5; } }
+</style>
+<label><input type="checkbox" id="auto"> Spočítat hned po označení částky myší</label>
+<p>Na všech stránkách se po označení textu s částkou rovnou ukáže součet v Kč. Chrome si k tomu vyžádá oprávnění ke všem webům; text stránek nikam neodchází, vše se počítá u vás v prohlížeči.</p>
+<p id="status"></p>
+<script src="options.js"></script>
+</html>

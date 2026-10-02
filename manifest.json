@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "Picture Calculator",
+  "version": "0.1.0",
+  "description": "Označte výřez stránky: částky v cizích měnách převede na Kč podle kurzu ČNB a sečte je.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "alarms",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "https://www.cnb.cz/*"
+  ],
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "action": {
+    "default_title": "Sečíst a převést na Kč (Alt+Shift+S)"
+  },
+  "commands": {
+    "activate": {
+      "suggested_key": {
+        "default": "Alt+Shift+S"
+      },
+      "description": "Označit výřez a spočítat částky"
+    }
+  },
+  "optional_host_permissions": [
+    "<all_urls>"
+  ],
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": false
+  }
+}
