@@ -218,9 +218,9 @@
       .warn{margin:8px 14px;padding:6px 8px;border-radius:6px;background:var(--warn-bg);color:var(--warn);font-size:12px}
       .foot{border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px;
          padding:8px 10px 8px 14px;color:var(--muted);font-size:11.5px}
-      .copy{border:0;border-radius:7px;padding:5px 10px;background:var(--btn);color:var(--fg);font:600 12px system-ui,sans-serif;cursor:pointer}
-      .copy.ok{color:var(--ok)}
-      .x:focus-visible{outline:2px solid var(--head-fg);outline-offset:1px}.copy:focus-visible{outline:2px solid var(--fg);outline-offset:1px}
+      .copy{border:0;border-radius:7px;padding:5px 10px;background:var(--head-bg);color:var(--head-fg);font:600 12px system-ui,sans-serif;cursor:pointer}
+      .copy:hover{filter:brightness(1.15)}
+      .x:focus-visible{outline:2px solid var(--head-fg);outline-offset:1px}.copy:focus-visible{outline:2px solid var(--head-bg);outline-offset:2px}
       .empty{padding:10px 14px 12px}
     </style><div class="b" role="dialog" aria-label="CZalKulator">${html}</div>`;
     document.documentElement.appendChild(host);
@@ -248,7 +248,6 @@
       try {
         await navigator.clipboard.writeText(n(res.totalCzk).replace(/\s/g, ''));
         copy.textContent = 'Zkopírováno ✓';
-        copy.classList.add('ok');
         setTimeout(close, 900);
       } catch {
         copy.textContent = 'Nelze kopírovat';
