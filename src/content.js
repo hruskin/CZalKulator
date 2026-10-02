@@ -170,7 +170,7 @@
 
     let html;
     if (empty) {
-      html = '<div class="head plain"><span>CZalKulator</span><button class="x" aria-label="Zavřít">×</button></div>' +
+      html = '<div class="head"><span>CZalKulator</span><button class="x" aria-label="Zavřít">×</button></div>' +
         '<div class="empty">Ve výřezu není žádná částka.</div>';
     } else {
       const total = res.items.length + res.unknown.length;
@@ -200,17 +200,16 @@
 
     root.innerHTML = `<style>
       .b{--bg:#fff;--fg:#1f1f1f;--muted:#6b6f6c;--line:#e4e6e4;--ok:#0b6e4f;--warn:#8a5a00;--warn-bg:#fff4dc;--btn:#f1f3f1;
-         --total-bg:#fcf5e6;--total-fg:#111412;--total-sub:#4a4538;--shadow:rgba(0,0,0,.16);
+         --head-bg:#0b5446;--head-fg:#fff;--head-hover:rgba(255,255,255,.16);--total-bg:#fcf5e6;--total-fg:#111412;--total-sub:#4a4538;--shadow:rgba(0,0,0,.16);
          width:300px;max-width:calc(100vw - 16px);background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:12px;
          box-shadow:0 8px 28px var(--shadow);font:13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden;text-align:left}
       @media (prefers-color-scheme:dark){.b{--bg:#262a27;--fg:#eef1ee;--muted:#a3aaa5;--line:#3a403c;--ok:#6fd3a8;--warn:#f3c66b;
-         --warn-bg:#3b3220;--btn:#323733;--total-bg:#3f3522;--total-fg:#fff;--total-sub:#d8d0bf;--shadow:rgba(0,0,0,.5)}}
-      .head{display:flex;align-items:center;justify-content:space-between;padding:10px 10px 0 14px;font-size:12px;
-         background:var(--total-bg);color:var(--total-sub)}
-      .head.plain{background:transparent;color:var(--muted)}
+         --warn-bg:#3b3220;--btn:#323733;--head-bg:#0e6e5c;--head-hover:rgba(255,255,255,.16);--total-bg:#3f3522;--total-fg:#fff;--total-sub:#d8d0bf;--shadow:rgba(0,0,0,.5)}}
+      .head{display:flex;align-items:center;justify-content:space-between;padding:6px 8px 6px 14px;font-size:12px;font-weight:600;
+         background:var(--head-bg);color:var(--head-fg)}
       .x{width:24px;height:24px;border:0;border-radius:6px;background:transparent;color:inherit;font-size:16px;line-height:1;cursor:pointer}
-      .x:hover{background:var(--btn)}
-      .total{background:var(--total-bg);padding:2px 14px 12px}
+      .x:hover{background:var(--head-hover)}
+      .total{background:var(--total-bg);padding:10px 14px 12px}
       .big{font-size:24px;font-weight:700;letter-spacing:-.01em;color:var(--total-fg);font-variant-numeric:tabular-nums}
       .sub{color:var(--total-sub);font-variant-numeric:tabular-nums}
       .rows{border-top:1px solid var(--line);padding:8px 14px;display:grid;grid-template-columns:1fr auto;column-gap:12px;row-gap:3px;
@@ -221,7 +220,7 @@
          padding:8px 10px 8px 14px;color:var(--muted);font-size:11.5px}
       .copy{border:0;border-radius:7px;padding:5px 10px;background:var(--btn);color:var(--fg);font:600 12px system-ui,sans-serif;cursor:pointer}
       .copy.ok{color:var(--ok)}
-      .x:focus-visible,.copy:focus-visible{outline:2px solid var(--fg);outline-offset:1px}
+      .x:focus-visible{outline:2px solid var(--head-fg);outline-offset:1px}.copy:focus-visible{outline:2px solid var(--fg);outline-offset:1px}
       .empty{padding:10px 14px 12px}
     </style><div class="b" role="dialog" aria-label="CZalKulator">${html}</div>`;
     document.documentElement.appendChild(host);
