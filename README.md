@@ -6,7 +6,7 @@ Doplněk do Google Chrome: označíte výřez stránky a doplněk v něm najde �
 
 1. Stiskněte **Alt+Shift+S** (nebo klikněte na ikonu doplňku).
 2. Je-li na stránce označený text, spočítá se hned. Jinak tažením myši nakreslete obdélník.
-3. U výřezu se objeví bublina se součtem v Kč a rozpisem. Kliknutím zkopírujete součet, Esc ji zavře.
+3. U výřezu se objeví bublina s výsledkem v Kč (u více částek i s rozpisem). Tlačítko **Kopírovat** zkopíruje součet, křížek nebo Esc bublinu zavře.
 
 Totéž je i v kontextovém menu (pravé tlačítko): kdekoli na stránce **Označit výřez a spočítat**, nad označeným textem **Sečíst a převést na Kč**.
 
