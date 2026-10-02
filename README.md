@@ -30,7 +30,7 @@ Pravým tlačítkem na ikonu doplňku → **Možnosti** → **Spočítat hned po
 ## Jak to je rychlé
 
 - Text se čte přímo z DOM stránky, bez OCR.
-- Kurzy ČNB se drží v `chrome.storage.local` a obnovují se na pozadí (alarm každou hodinu, stahuje se nejvýš jednou za 2 hodiny), takže výpočet na síť nečeká.
+- Kurzy ČNB se drží v `chrome.storage.local`, takže výpočet na síť nečeká. ČNB vyhlašuje kurzy každý pracovní den kolem 14:30 s platností i pro následující víkend a svátky, proto se nový lístek stahuje jednou: příští pracovní den ve 14:35 (víkendy a české svátky se přeskakují). Když ČNB ještě nevyhlásila nebo síť selže, zkusí se to znovu za 30 minut.
 - Skript se do stránky vkládá až po aktivaci (`activeTab`), jinak na stránkách nic neběží.
 
 ## Soukromí
