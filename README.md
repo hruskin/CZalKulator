@@ -10,6 +10,10 @@ Doplněk do Google Chrome: označíte výřez stránky a doplněk v něm najde �
 
 Totéž je i v kontextovém menu (pravé tlačítko): kdekoli na stránce **Označit výřez a spočítat**, nad označeným textem **Sečíst a převést na Kč**.
 
+### Spouštění označením částky (volitelné)
+
+Pravým tlačítkem na ikonu doplňku → **Možnosti** → **Spočítat hned po označení částky myší**. Pak stačí částku označit myší a součet se ukáže sám. Chrome si při zapnutí vyžádá oprávnění ke všem webům; ve výchozím stavu je funkce vypnutá a doplněk žádá jen minimální oprávnění. Spouští se jen na výběr s měnou nebo na sloupec samotných čísel.
+
 ## Pravidla
 
 - Částky v jiné měně než CZK (včetně EUR) se převádějí na Kč podle denního kurzu ČNB.
@@ -28,6 +32,10 @@ Totéž je i v kontextovém menu (pravé tlačítko): kdekoli na stránce **Ozna
 - Text se čte přímo z DOM stránky, bez OCR.
 - Kurzy ČNB se drží v `chrome.storage.local` a obnovují se na pozadí (alarm každou hodinu, stahuje se nejvýš jednou za 2 hodiny), takže výpočet na síť nečeká.
 - Skript se do stránky vkládá až po aktivaci (`activeTab`), jinak na stránkách nic neběží.
+
+## Soukromí
+
+Doplněk nesbírá ani neodesílá žádná data. Text z výřezu zpracuje jen v prohlížeči a jediné síťové spojení je stažení kurzovního lístku z `www.cnb.cz`. Podrobnosti v [PRIVACY.md](PRIVACY.md).
 
 ## Omezení
 

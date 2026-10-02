@@ -25,6 +25,7 @@
 
   function pickRect() {
     const layer = document.createElement('div');
+    layer.dataset.picCalc = '';
     layer.style.cssText = `position:fixed;inset:0;z-index:${Z};cursor:crosshair;background:rgba(0,0,0,.04);`;
     const box = document.createElement('div');
     box.style.cssText = 'position:fixed;border:2px dashed #1a73e8;background:rgba(26,115,232,.08);display:none;pointer-events:none;';
@@ -156,6 +157,7 @@
 
   function bubble(res, data, anchor) {
     const host = document.createElement('div');
+    host.dataset.picCalc = '';
     host.style.cssText = `position:fixed;z-index:${Z};left:0;top:0;`;
     const root = host.attachShadow({ mode: 'closed' });
     const n = (v) => fmt.format(v);
