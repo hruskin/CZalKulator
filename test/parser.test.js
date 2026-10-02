@@ -85,3 +85,35 @@ test('parsování lístku ČNB', () => {
   assert.equal(r.rates.EUR, 24.33);
   assert.ok(Math.abs(r.rates.HUF - 0.0618) < 1e-12);
 });
+
+const { nextPublication, nextCheck, isCnbWorkingDay, RETRY_MS } = require('../src/rates.js');
+const at = (iso) => Date.parse(iso);
+
+test('další lístek ČNB: příští pracovní den 14:35 pražského času', () => {
+  // čtvrtek → pátek, letní čas (UTC+2)
+  assert.equal(nextPublication('2026-10-01'), at('2026-10-02T12:35:00Z'));
+  // pátek → pondělí
+  assert.equal(nextPublication('2026-10-02'), at('2026-10-05T12:35:00Z'));
+  // zimní čas (UTC+1)
+  assert.equal(nextPublication('2026-11-02'), at('2026-11-03T13:35:00Z'));
+  // 27. 10. → 28. 10. je svátek → 29. 10.
+  assert.equal(nextPublication('2026-10-27'), at('2026-10-29T13:35:00Z'));
+  // Zelený čtvrtek 2026-04-02 → Velký pátek i Velikonoční pondělí přeskočit → úterý 7. 4.
+  assert.equal(nextPublication('2026-04-02'), at('2026-04-07T12:35:00Z'));
+  // Vánoce: 23. 12. → 24.–26. 12. svátky, 27. 12. neděle → 28. 12.
+  assert.equal(nextPublication('2026-12-23'), at('2026-12-28T13:35:00Z'));
+});
+
+test('svátky a víkendy ČNB', () => {
+  assert.equal(isCnbWorkingDay(at('2026-04-03T00:00:00Z')), false); // Velký pátek
+  assert.equal(isCnbWorkingDay(at('2026-04-06T00:00:00Z')), false); // Velikonoční pondělí
+  assert.equal(isCnbWorkingDay(at('2026-10-03T00:00:00Z')), false); // sobota
+  assert.equal(isCnbWorkingDay(at('2026-10-05T00:00:00Z')), true);
+});
+
+test('cache: do vyhlášení se nestahuje, po něm a při zpoždění ČNB za 30 minut', () => {
+  const pub = at('2026-10-05T12:35:00Z');
+  assert.equal(nextCheck('2026-10-02', at('2026-10-03T10:00:00Z')), pub); // sobota: čekáme na pondělí
+  const late = at('2026-10-05T12:40:00Z'); // pondělí po 14:35, ale stále páteční lístek
+  assert.equal(nextCheck('2026-10-02', late), late + RETRY_MS);
+});

@@ -1,18 +1,30 @@
 // Service worker: drží kurzy ČNB aktuální a po aktivaci vloží skript do karty.
 importScripts('rates.js');
 
-const { fetchRates, loadRates } = self.PicCalc;
-const MAX_AGE_MS = 2 * 60 * 60 * 1000;
+const { fetchRates, loadRates, nextCheck, RETRY_MS } = self.PicCalc;
 
+// Na ČNB se jde jen tehdy, když už má být venku nový lístek (viz nextCheck v rates.js);
+// jinak se použije cache. Alarm se nastaví přesně na příští vyhlášení.
 async function refreshIfStale() {
   const current = await loadRates();
-  if (current && Date.now() - current.fetchedAt < MAX_AGE_MS) return current;
-  try {
-    return await fetchRates();
-  } catch (err) {
-    console.warn('CZalKulator: kurzy ČNB se nepodařilo stáhnout', err);
+  const due = current ? current.nextCheck || nextCheck(current.date) : 0;
+  if (current && Date.now() < due) {
+    scheduleRates(due);
     return current;
   }
+  try {
+    const fresh = await fetchRates();
+    scheduleRates(fresh.nextCheck);
+    return fresh;
+  } catch (err) {
+    console.warn('CZalKulator: kurzy ČNB se nepodařilo stáhnout', err);
+    scheduleRates(Date.now() + RETRY_MS);
+    return current;
+  }
+}
+
+function scheduleRates(when) {
+  chrome.alarms.create('rates', { when: Math.max(when, Date.now() + 60000) });
 }
 
 async function activate(tab) {
@@ -35,7 +47,6 @@ chrome.runtime.onInstalled.addListener(() => {
       contexts: ['page', 'link', 'image', 'video', 'audio', 'frame'],
     });
   });
-  chrome.alarms.create('rates', { periodInMinutes: 60 });
   refreshIfStale();
   syncAuto();
 });
