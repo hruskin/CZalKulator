@@ -29,6 +29,10 @@ Totéž je i v kontextovém menu (pravé tlačítko): kdekoli na stránce **Ozna
 - Kurzy ČNB se drží v `chrome.storage.local` a obnovují se na pozadí (alarm každou hodinu, stahuje se nejvýš jednou za 2 hodiny), takže výpočet na síť nečeká.
 - Skript se do stránky vkládá až po aktivaci (`activeTab`), jinak na stránkách nic neběží.
 
+## Soukromí
+
+Doplněk nesbírá ani neodesílá žádná data. Text z výřezu zpracuje jen v prohlížeči a jediné síťové spojení je stažení kurzovního lístku z `www.cnb.cz`. Podrobnosti v [PRIVACY.md](PRIVACY.md).
+
 ## Omezení
 
 Nefunguje ve vestavěném prohlížeči PDF, na stránkách `chrome://` a v Chrome Web Store; částky v obrázcích a canvasu nepozná.

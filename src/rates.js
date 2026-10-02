@@ -25,7 +25,7 @@
   }
 
   async function fetchRates() {
-    const res = await fetch(CNB_URL, { cache: 'no-store' });
+    const res = await fetch(CNB_URL, { cache: 'no-store', credentials: 'omit' });
     if (!res.ok) throw new Error(`ČNB vrátila ${res.status}`);
     const data = { ...parseCnb(await res.text()), fetchedAt: Date.now() };
     await chrome.storage.local.set({ [STORAGE_KEY]: data });
