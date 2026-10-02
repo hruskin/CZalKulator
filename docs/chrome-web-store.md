@@ -26,4 +26,4 @@ No user data is collected or transmitted; selected text is processed only on the
 
 ## Privacy policy URL
 
-https://github.com/hruskin/Picture-calculator/blob/main/PRIVACY.md
+https://github.com/hruskin/CZalKulator/blob/main/PRIVACY.md
