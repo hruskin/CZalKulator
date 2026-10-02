@@ -10,7 +10,7 @@ async function refreshIfStale() {
   try {
     return await fetchRates();
   } catch (err) {
-    console.warn('Picture Calculator: kurzy ČNB se nepodařilo stáhnout', err);
+    console.warn('CZalKulator: kurzy ČNB se nepodařilo stáhnout', err);
     return current;
   }
 }
@@ -22,7 +22,7 @@ async function activate(tab) {
     await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: () => globalThis.PicCalc.start() });
   } catch (err) {
     // chrome:// stránky, Web Store a vestavěný PDF prohlížeč skripty nepovolují.
-    console.warn('Picture Calculator: na této stránce nelze spustit', err);
+    console.warn('CZalKulator: na této stránce nelze spustit', err);
   }
 }
 
