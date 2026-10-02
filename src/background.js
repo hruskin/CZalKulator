@@ -27,7 +27,14 @@ async function activate(tab) {
 }
 
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.create({ id: 'pic-calc', title: 'Sečíst a převést na Kč', contexts: ['selection'] });
+  chrome.contextMenus.removeAll(() => {
+    chrome.contextMenus.create({ id: 'pic-calc', title: 'Sečíst a převést na Kč', contexts: ['selection'] });
+    chrome.contextMenus.create({
+      id: 'pic-calc-rect',
+      title: 'Označit výřez a spočítat (Alt+Shift+S)',
+      contexts: ['page', 'link', 'image', 'video', 'audio', 'frame'],
+    });
+  });
   chrome.alarms.create('rates', { periodInMinutes: 60 });
   refreshIfStale();
 });
@@ -35,7 +42,7 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.runtime.onStartup.addListener(refreshIfStale);
 chrome.alarms.onAlarm.addListener((alarm) => alarm.name === 'rates' && refreshIfStale());
 chrome.action.onClicked.addListener(activate);
-chrome.contextMenus.onClicked.addListener((info, tab) => info.menuItemId === 'pic-calc' && activate(tab));
+chrome.contextMenus.onClicked.addListener((info, tab) => String(info.menuItemId).startsWith('pic-calc') && activate(tab));
 chrome.commands.onCommand.addListener((command, tab) => command === 'activate' && activate(tab));
 
 // Content script si řekne o kurzy, jen když v cache ještě nejsou (první spuštění).
