@@ -213,7 +213,7 @@
          box-shadow:0 8px 28px var(--shadow);font:13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden;text-align:left}
       @media (prefers-color-scheme:dark){.b{--bg:#262a27;--fg:#eef1ee;--muted:#a3aaa5;--line:#3a403c;--ok:#6fd3a8;--warn:#f3c66b;
          --warn-bg:#3b3220;--btn:#323733;--head-bg:#2a2214;--head-hover:rgba(255,255,255,.16);--total-bg:#3f3522;--total-fg:#fff;--total-sub:#d8d0bf;--shadow:rgba(0,0,0,.5)}}
-      .head{display:flex;align-items:center;justify-content:space-between;padding:6px 8px 6px 14px;font-size:12px;font-weight:600;
+      .head{display:flex;align-items:center;justify-content:space-between;padding:6px 8px 6px 14px;font-size:14px;font-weight:700;
          background:var(--head-bg);color:var(--head-fg)}
       .x{width:24px;height:24px;border:0;border-radius:6px;background:transparent;color:inherit;font-size:16px;line-height:1;cursor:pointer}
       .x:hover{background:var(--head-hover)}
