@@ -11,7 +11,7 @@ Doplněk **CZalKulator** nesbírá, neukládá ani neodesílá žádné osobní 
 - Doplněk neobsahuje analytiku, reklamu ani sledování a nespouští vzdálený kód.
 - Součet se do schránky zkopíruje jen po kliknutí na tlačítko Kopírovat v bublině s výsledkem.
 
-Kontakt: https://github.com/hruskin/Picture-calculator/issues
+Kontakt: https://github.com/hruskin/CZalKulator/issues
 
 ## English
 
@@ -24,4 +24,4 @@ The **CZalKulator** extension does not collect, store or transmit any personal d
 - It contains no analytics, advertising or tracking and runs no remote code.
 - The total is copied to the clipboard only when you click the Copy button in the result bubble.
 
-Contact: https://github.com/hruskin/Picture-calculator/issues
+Contact: https://github.com/hruskin/CZalKulator/issues
