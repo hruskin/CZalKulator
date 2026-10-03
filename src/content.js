@@ -2,7 +2,13 @@
 (function () {
   'use strict';
   const PC = globalThis.PicCalc;
-  if (PC.start) return; // skript už na stránce běží
+  if (PC.start && PC.alive && PC.alive()) return; // skript už na stránce běží
+
+  // Po aktualizaci nebo obnovení doplňku zůstane ve stránce starý skript bez spojení s doplňkem
+  // (chrome.runtime.id zmizí, chrome.storage hází výjimku). Takový skript se nesmí ozývat.
+  const alive = () => {
+    try { return !!chrome.runtime.id; } catch { return false; }
+  };
 
   const Z = 2147483647;
   const SKIP = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEMPLATE', 'svg']);
@@ -13,10 +19,10 @@
   function start() {
     if (cleanup) cleanup();
     const sel = window.getSelection();
-    const text = sel && sel.toString().trim();
-    if (text) {
-      const r = sel.getRangeAt(0).getBoundingClientRect();
-      show(text, { left: r.left, top: r.top, right: r.right, bottom: r.bottom });
+    if (sel && sel.toString().trim()) {
+      const range = sel.getRangeAt(0);
+      const r = range.getBoundingClientRect();
+      show(textInRange(range) || sel.toString().trim(), { left: r.left, top: r.top, right: r.right, bottom: r.bottom });
     } else {
       pickRect();
     }
@@ -75,6 +81,11 @@
 
   // --- Text z DOM uvnitř obdélníku -----------------------------------------
 
+  // Texty jen pro čtečky obrazovky (Amazon „a-offscreen“: 1×1 px s ořezem) by se započítaly dvakrát.
+  const tiny = (el) => {
+    const q = el.getBoundingClientRect();
+    return q.width <= 1 || q.height <= 1;
+  };
   const intersects = (a, r) => a.right > r.left && a.left < r.right && a.bottom > r.top && a.top < r.bottom;
   const inside = (a, r) => {
     const cx = (a.left + a.right) / 2, cy = (a.top + a.bottom) / 2;
@@ -86,7 +97,7 @@
     const range = document.createRange();
     const elRects = new Map();
     const elHit = (el) => {
-      if (!elRects.has(el)) elRects.set(el, intersects(el.getBoundingClientRect(), r));
+      if (!elRects.has(el)) elRects.set(el, intersects(el.getBoundingClientRect(), r) && !tiny(el));
       return elRects.get(el);
     };
 
@@ -128,27 +139,41 @@
       if (el.value && inside(q, r)) frags.push({ text: el.value, x: q.left, right: q.right, y: (q.top + q.bottom) / 2, h: q.height });
     }
 
-    return toLines(frags);
+    return PC.toLines(frags);
   }
 
-  // Fragmenty na stejné výšce tvoří jeden řádek; řádky shora dolů.
-  function toLines(frags) {
-    frags.sort((a, b) => a.y - b.y || a.x - b.x);
-    const lines = [];
-    for (const f of frags) {
-      const line = lines[lines.length - 1];
-      if (line && Math.abs(f.y - line.y) < Math.max(4, Math.min(f.h, line.h) / 2)) line.items.push(f);
-      else lines.push({ y: f.y, h: f.h, items: [f] });
+
+  // Označený text čteme stejně jako výřez: Selection.toString() dává mezi <span> s „-“ a „€7.52“
+  // mezeru nebo nový řádek (podle rozvržení), a znaménko by se ztratilo.
+  function textInRange(range) {
+    const frags = [];
+    const box = range.getBoundingClientRect();
+    const part = document.createRange();
+    const rootNode = range.commonAncestorContainer;
+    const walker = document.createTreeWalker(rootNode, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        for (let el = node.parentElement; el && el !== rootNode.parentElement; el = el.parentElement) {
+          if (SKIP.has(el.nodeName)) return NodeFilter.FILTER_REJECT;
+        }
+        return node.nodeValue.trim() && range.intersectsNode(node) && !tiny(node.parentElement)
+          ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+      },
+    });
+    const nodes = rootNode.nodeType === Node.TEXT_NODE ? [rootNode] : [];
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) nodes.push(node);
+    for (const node of nodes) {
+      const start = node === range.startContainer ? range.startOffset : 0;
+      const end = node === range.endContainer ? range.endOffset : node.nodeValue.length;
+      const text = node.nodeValue.slice(start, end);
+      if (!text.trim()) continue;
+      part.setStart(node, start);
+      part.setEnd(node, end);
+      const rects = [...part.getClientRects()].filter((q) => q.width > 1 && q.height > 1 && intersects(q, box));
+      if (!rects.length) continue;
+      const q = rects[0];
+      frags.push({ text, x: q.left, right: rects[rects.length - 1].right, y: (q.top + q.bottom) / 2, h: q.height });
     }
-    // Fragmenty, které na stránce těsně navazují (např. „-“ a „€7.52“ v různých <span>), se spojí bez mezery,
-    // aby se neztratilo znaménko ani měna.
-    return lines.map((l) => l.items.sort((a, b) => a.x - b.x).reduce((out, f, i, arr) => {
-      const text = f.text.trim();
-      if (!i) return text;
-      const prev = arr[i - 1];
-      const touching = prev.right !== undefined && f.x - prev.right < 1.5 && !/\s$/.test(prev.text) && !/^\s/.test(f.text);
-      return out + (touching ? '' : ' ') + text;
-    }, '')).join('\n');
+    return PC.toLines(frags);
   }
 
   // --- Výsledek --------------------------------------------------------------
@@ -159,12 +184,13 @@
   }
 
   async function show(text, anchor) {
+    if (!alive()) return bubble({ items: [], unknown: [] }, null, anchor, 'Doplněk byl aktualizován. Obnovte stránku (F5).');
     const data = await getRates().catch(() => null);
     const res = PC.summarize(text, data && data.rates);
     bubble(res, data, anchor);
   }
 
-  function bubble(res, data, anchor) {
+  function bubble(res, data, anchor, notice) {
     const host = document.createElement('div');
     host.dataset.picCalc = '';
     host.style.cssText = `position:fixed;z-index:${Z};left:0;top:0;`;
@@ -179,7 +205,7 @@
     let html;
     if (empty) {
       html = '<div class="head"><span>CZalKulator</span><button class="x" aria-label="Zavřít">×</button></div>' +
-        '<div class="empty">Ve výřezu není žádná částka.</div>';
+        `<div class="empty">${notice || 'Ve výřezu není žádná částka.'}</div>`;
     } else {
       const total = res.items.length + res.unknown.length;
       const single = count === 1 && !res.unknown.length;
@@ -264,12 +290,14 @@
     document.addEventListener('mousedown', onOutside, true);
     window.addEventListener('keydown', onKey, true);
     cleanup = close;
-    if (empty) setTimeout(close, 2000);
+    if (empty && !notice) setTimeout(close, 2000);
   }
 
   const plural = (k) => (k >= 2 && k <= 4 ? 'položky' : 'položek');
   const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
   PC.start = start;
+  PC.alive = alive;
   PC._textInRect = textInRect; // pro testy
+  PC._textInRange = textInRange;
 })();

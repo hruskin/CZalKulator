@@ -48,7 +48,7 @@ chrome.runtime.onInstalled.addListener(() => {
     });
   });
   refreshIfStale();
-  syncAuto();
+  syncAuto().then(injectAutoIntoOpenTabs);
 });
 
 chrome.runtime.onStartup.addListener(refreshIfStale);
@@ -79,6 +79,16 @@ async function doSyncAuto() {
   }
 }
 chrome.permissions.onRemoved.addListener(syncAuto);
+
+// Registrovaný content script se do už otevřených karet sám nevloží. Po instalaci či aktualizaci
+// by tam zůstal jen starý skript odpojený od doplňku, a tak nový vložíme hned.
+async function injectAutoIntoOpenTabs() {
+  if (!(await chrome.scripting.getRegisteredContentScripts({ ids: [AUTO_ID] })).length) return;
+  const tabs = await chrome.tabs.query({ url: ['http://*/*', 'https://*/*'] });
+  await Promise.all(tabs.map((tab) => chrome.scripting.executeScript({
+    target: { tabId: tab.id }, files: ['src/parser.js', 'src/content.js', 'src/auto.js'],
+  }).catch(() => {})));
+}
 
 // Content script si řekne o kurzy, jen když v cache ještě nejsou (první spuštění).
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {

@@ -102,9 +102,29 @@
     };
   }
 
+  // Fragmenty textu {text, x, right, y, h} ze stránky složí do řádků shora dolů (bez DOM, testovatelné v Node).
+  function toLines(frags) {
+    frags.sort((a, b) => a.y - b.y || a.x - b.x);
+    const lines = [];
+    for (const f of frags) {
+      const line = lines[lines.length - 1];
+      if (line && Math.abs(f.y - line.y) < Math.max(4, Math.min(f.h, line.h) / 2)) line.items.push(f);
+      else lines.push({ y: f.y, h: f.h, items: [f] });
+    }
+    // Fragmenty, které na stránce těsně navazují (např. „-“ a „€7.52“ v různých <span>), se spojí bez mezery,
+    // aby se neztratilo znaménko ani měna.
+    return lines.map((l) => l.items.sort((a, b) => a.x - b.x).reduce((out, f, i, arr) => {
+      const text = f.text.trim();
+      if (!i) return text;
+      const prev = arr[i - 1];
+      const touching = prev.right !== undefined && f.x - prev.right < 1.5 && !/\s$/.test(prev.text) && !/^\s/.test(f.text);
+      return out + (touching ? '' : ' ') + text;
+    }, '')).join('\n');
+  }
+
   const round2 = (n) => Math.round(n * 100) / 100;
 
-  const api = { findAmounts, parseNumber, summarize, CODES };
+  const api = { findAmounts, parseNumber, summarize, toLines, CODES };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.PicCalc = Object.assign(root.PicCalc || {}, api);
 })(typeof globalThis !== 'undefined' ? globalThis : this);

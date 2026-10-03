@@ -141,3 +141,25 @@ test('záporné částky v součtu přes různé měny', () => {
   assert.equal(neg.totalOriginal, -15);
   assert.equal(neg.totalCzk, -375);
 });
+
+const { toLines } = require('../src/parser.js');
+const frag = (text, x, right, y) => ({ text, x, right, y, h: 16 });
+
+test('řádky ze stránky: minus v samostatném prvku zůstane u částky', () => {
+  // Amazon: „FREE DELIVERY“ vlevo, „-“ a „€7.52“ v sousedních <span> vpravo
+  const text = toLines([
+    frag('Items:', 10, 50, 20), frag('€94.15', 450, 505, 20),
+    frag('FREE DELIVERY', 10, 140, 42), frag('-', 455, 461, 42), frag('€7.52', 461, 505, 42),
+  ]);
+  assert.equal(text, 'Items: €94.15\nFREE DELIVERY -€7.52');
+  assert.deepEqual(pick(text), [[94.15, 'EUR'], [-7.52, 'EUR']]);
+  // Oddělené mezerou na stránce se nespojí: „Položka - 100 Kč“ není záporná
+  assert.deepEqual(pick(toLines([frag('Položka', 10, 60, 20), frag('-', 64, 70, 20), frag('100 Kč', 74, 120, 20)])), [[100, 'CZK']]);
+});
+
+test('pátek odpoledne až neděle: platí páteční lístek, žádné stahování', () => {
+  const monday = at('2026-10-05T12:35:00Z');
+  for (const now of ['2026-10-02T15:00:00Z', '2026-10-03T17:41:00Z', '2026-10-04T23:00:00Z']) {
+    assert.equal(nextCheck('2026-10-02', at(now)), monday);
+  }
+});
