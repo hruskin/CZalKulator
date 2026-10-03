@@ -25,11 +25,14 @@
   // Číslo: buď se skupinami tisíců (stejný oddělovač), nebo bez nich; volitelně 1–2 desetinná místa.
   const NUM = "\\d{1,3}(?:(?<sep>[ \\u00a0\\u202f.,'])\\d{3})(?:\\k<sep>\\d{3})*(?:[.,]\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?";
 
+  // Minus v různých podobách: spojovník, matematické minus, pomlčky a nezlomitelný spojovník.
+  const MINUS = '[-\u2010\u2011\u2012\u2013\u2212\uFE63\uFF0D]';
+
   const AMOUNT = new RegExp(
     '(?<![\\p{L}\\d.,:+/])' +             // nezačínat uprostřed slova, čísla, času nebo telefonu
-    '(?<sign>[-−])?' +                     // znaménko hned u čísla nebo měny
+    '(?<sign>' + MINUS + ')?' +              // znaménko hned u čísla nebo měny
     '(?:(?<pre>' + CUR + ')\\s?)?' +       // měna před číslem
-    '(?<sign2>[-−])?' +                    // znaménko mezi měnou a číslem (€-5)
+    '(?<sign2>' + MINUS + ')?' +             // znaménko mezi měnou a číslem (€-5)
     '(?<num>' + NUM + ')' +
     '(?:[.,][-–])?' +                      // 100,- / 100.–
     '(?![.,:]?\\d)' +                      // ne část data nebo času (12.10.2026, 12:30)
