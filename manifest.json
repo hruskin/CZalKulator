@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "CZalKulator",
-  "version": "0.1.1",
-  "version_name": "0.1.1 beta",
+  "version": "0.1.2",
+  "version_name": "0.1.2 beta",
   "description": "Označte výřez stránky: částky v cizích měnách převede na Kč podle kurzu ČNB a sečte je.",
   "icons": {
     "16": "icons/icon16.png",
