@@ -111,7 +111,7 @@
       if (!rects.some((q) => intersects(q, r))) continue;
       if (rects.every((q) => inside(q, r))) {
         const q = rects[0];
-        frags.push({ text: node.nodeValue, x: q.left, y: (q.top + q.bottom) / 2, h: q.height });
+        frags.push({ text: node.nodeValue, x: q.left, right: rects[rects.length - 1].right, y: (q.top + q.bottom) / 2, h: q.height });
         continue;
       }
       // Uzel je ve výřezu jen zčásti: bereme jednotlivá slova.
@@ -119,13 +119,13 @@
         range.setStart(node, m.index);
         range.setEnd(node, m.index + m[0].length);
         const q = range.getBoundingClientRect();
-        if (inside(q, r)) frags.push({ text: m[0], x: q.left, y: (q.top + q.bottom) / 2, h: q.height });
+        if (inside(q, r)) frags.push({ text: m[0], x: q.left, right: q.right, y: (q.top + q.bottom) / 2, h: q.height });
       }
     }
 
     for (const el of document.querySelectorAll('input:not([type=hidden]), textarea')) {
       const q = el.getBoundingClientRect();
-      if (el.value && inside(q, r)) frags.push({ text: el.value, x: q.left, y: (q.top + q.bottom) / 2, h: q.height });
+      if (el.value && inside(q, r)) frags.push({ text: el.value, x: q.left, right: q.right, y: (q.top + q.bottom) / 2, h: q.height });
     }
 
     return toLines(frags);
@@ -140,7 +140,15 @@
       if (line && Math.abs(f.y - line.y) < Math.max(4, Math.min(f.h, line.h) / 2)) line.items.push(f);
       else lines.push({ y: f.y, h: f.h, items: [f] });
     }
-    return lines.map((l) => l.items.sort((a, b) => a.x - b.x).map((f) => f.text.trim()).join(' ')).join('\n');
+    // Fragmenty, které na stránce těsně navazují (např. „-“ a „€7.52“ v různých <span>), se spojí bez mezery,
+    // aby se neztratilo znaménko ani měna.
+    return lines.map((l) => l.items.sort((a, b) => a.x - b.x).reduce((out, f, i, arr) => {
+      const text = f.text.trim();
+      if (!i) return text;
+      const prev = arr[i - 1];
+      const touching = prev.right !== undefined && f.x - prev.right < 1.5 && !/\s$/.test(prev.text) && !/^\s/.test(f.text);
+      return out + (touching ? '' : ' ') + text;
+    }, '')).join('\n');
   }
 
   // --- Výsledek --------------------------------------------------------------

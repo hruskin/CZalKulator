@@ -117,3 +117,15 @@ test('cache: do vyhlášení se nestahuje, po něm a při zpoždění ČNB za 30
   const late = at('2026-10-05T12:40:00Z'); // pondělí po 14:35, ale stále páteční lístek
   assert.equal(nextCheck('2026-10-02', late), late + RETRY_MS);
 });
+
+test('znaménko minus ve všech podobách se odečte (Amazon „-€7.52“)', () => {
+  assert.deepEqual(pick('FREE DELIVERY -€7.52'), [[-7.52, 'EUR']]);
+  assert.deepEqual(pick('Sleva –€7.52'), [[-7.52, 'EUR']]);       // pomlčka
+  assert.deepEqual(pick('Sleva ‑€7.52'), [[-7.52, 'EUR']]);  // nezlomitelný spojovník
+  assert.deepEqual(pick('Sleva €−7.52'), [[-7.52, 'EUR']]);
+  assert.deepEqual(pick('10–20 €'), [[10, null], [20, 'EUR']]);    // rozsah není záporný
+  const r = summarize('Items: €94.15\nPostage & Packing: €7.52\nFREE DELIVERY -€7.52', { EUR: 25 });
+  assert.equal(r.totalOriginal, 94.15);
+  assert.equal(r.totalCzk, 2353.75);
+  assert.equal(r.items[2].czk, -188);
+});
